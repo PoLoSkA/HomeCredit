@@ -6,9 +6,9 @@ import android.provider.BaseColumns;
 public final class DataBaseContract {
     public static final int DB_VERSION = 1;
     public static final String DB_NAME = "creditDb";
-    public static final String TEXT_TYPE = " TEXT ";
-    public static final String INTEGER_TYPE = " INTEGER ";
-    public static final String COMMA_SEP = ",";
+    private static final String TEXT_TYPE = " TEXT ";
+    private static final String INTEGER_TYPE = " INTEGER ";
+    private static final String COMMA_SEP = ",";
 
     private DataBaseContract(){}
 
@@ -21,7 +21,8 @@ public final class DataBaseContract {
         public static final String COLUMN_DATE = "date"; //дата траты - текстовое
         public static final String COLUMN_CATEGORY ="category"; //тип траты, выбирается из таблицы типов
         public static final String COLUMN_MONEYBOX = "moneyBox"; //кошелек - текст
-        public static final String COLUMN_TYPE = "budgettype"; // 0 - расход / 1 - доход
+        public static final String COLUMN_TYPE = "budgettype";// 0 - расход / 1 - доход
+        public static final String COLUMN_MONEYTYPE = "moneytype";//тип валюты
 
         public static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
@@ -31,8 +32,9 @@ public final class DataBaseContract {
                 COLUMN_DATE + TEXT_TYPE + COMMA_SEP +
                 COLUMN_CATEGORY + TEXT_TYPE  + COMMA_SEP +
                 COLUMN_MONEYBOX + TEXT_TYPE + COMMA_SEP +
-                COLUMN_TYPE + INTEGER_TYPE + " )";
-        public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+                COLUMN_TYPE + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_MONEYTYPE + TEXT_TYPE + " )";
+            public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
     }
         //Таблица доходов @TODO проанализировать надобность этой таблицы
