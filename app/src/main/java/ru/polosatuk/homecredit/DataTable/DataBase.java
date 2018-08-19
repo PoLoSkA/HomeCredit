@@ -9,10 +9,13 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
+import ru.polosatuk.homecredit.BudgetDataContainer;
+
 public class DataBase {
     private static final String TAG = "DataBaseLog";
     private DBHelper dbh;
     private SQLiteDatabase db;
+
 
     // Подключаемся к БД
     public DataBase(Context context) {
@@ -46,25 +49,31 @@ public class DataBase {
         dbh.close();
     }
     //Добавление данных в БД
-    public void setDataBudget(String table, String salary, String comment, String date, String type, String moneyBox){
+    public void setDataBudget(BudgetDataContainer container){
 
-        Log.d(TAG, "Insert in table " + table + " /Comment = " + comment +
-                " /Date = " + date +
-                " /Salary = " + salary +
-                "/Type= "+type +
-                "/moneyBox = " + moneyBox);
-        String rowSalary = salary.replaceAll("[.,]", "");
-         long dbCosts = Long.parseLong(rowSalary);
+        Log.d(TAG, "Insert in table " + container.getDbName() +
+                " /Comment = " + container.getDbComment() +
+                " /Date = " + container.getDbDate() +
+                " /Salary = " + container.getDbCosts() +
+                "/Category = "+ container.getDbCategory() +
+                "/moneyBox = " + container.getDbMoneyBox() +
+                "/budgetType = " + container.getDbBudgetType() +
+                "/dbMoneyType = " + container.getDbMoneyType());
+
 
         db = dbh.getWritableDatabase();
         db.beginTransaction();
         ContentValues cv = new ContentValues();
-        cv.put(DataBaseContract.TABLE_BUDGET.COLUMN_COMMENT, comment);
-        cv.put(DataBaseContract.TABLE_BUDGET.COLUMN_SALARY, dbCosts);
-        cv.put(DataBaseContract.TABLE_BUDGET.COLUMN_DATE, date);
-        cv.put(DataBaseContract.TABLE_BUDGET.COLUMN_CATEGORY, type);
-        cv.put(DataBaseContract.TABLE_BUDGET.COLUMN_MONEYBOX, moneyBox);
-        db.insert(table,null, cv);
+
+        cv.put(DataBaseContract.TABLE_BUDGET.COLUMN_COMMENT, container.getDbComment());
+        cv.put(DataBaseContract.TABLE_BUDGET.COLUMN_SALARY, container.getDbCosts());
+        cv.put(DataBaseContract.TABLE_BUDGET.COLUMN_DATE, container.getDbDate());
+        cv.put(DataBaseContract.TABLE_BUDGET.COLUMN_CATEGORY, container.getDbCategory());
+        cv.put(DataBaseContract.TABLE_BUDGET.COLUMN_MONEYBOX, container.getDbMoneyBox());
+        cv.put(DataBaseContract.TABLE_BUDGET.COLUMN_TYPE, container.getDbBudgetType());
+        cv.put(DataBaseContract.TABLE_BUDGET.COLUMN_MONEYTYPE, container.getDbMoneyType());
+
+        db.insert(container.getDbName(),null, cv);
         db.setTransactionSuccessful();
         db.endTransaction();
         dbh.close();
@@ -85,11 +94,10 @@ public class DataBase {
         }
         cursor.close();
         dbh.close();
-        String sal = salary;
-        return sal;
+        return salary;
     }
     public void setDefaultDataTABLE_GROUP(){
-        //Дефолтное наполнение списка
+        //Дефолтное наполнение спинера категорий
         db = dbh.getReadableDatabase();
         db.beginTransaction();
         Cursor cursor = db.query(DataBaseContract.TABLE_GROUP.TABLE_NAME,null,null,null,null,null,null);
@@ -99,6 +107,7 @@ public class DataBase {
         }else {
            //Если в базе нет строк, то наполняем ее значениями по умолчанию
             Log.d(TAG, "Start create data base: " + DataBaseContract.TABLE_GROUP.TABLE_NAME);
+            //@TODO добавить в Strings
             String[] group = new String[]{"Без категории","Еда", "  Продукты", "    Обеды и перекусы", "    Кофе", "Транспорт", "   Проезд","   Бензин", "  Траты на машину"};
             String[] catID =new String[]{ "0","1", "1", "1", "1", "2", "2", "2", "2"};
             String[] gravity = new String[]{"0","0","1","2","3","0","1","2","3"};
@@ -108,6 +117,7 @@ public class DataBase {
                 cv.put(DataBaseContract.TABLE_GROUP.COLUMN_CATEGORY_ID, catID[i]);
                 cv.put(DataBaseContract.TABLE_GROUP.COLUMN_GRAVITY, gravity[i]);
                 db.insert(DataBaseContract.TABLE_GROUP.TABLE_NAME, null, cv);
+
                 Log.d(TAG, "Insert in table " + DataBaseContract.TABLE_GROUP.TABLE_NAME +
                         " Group = " + cv.get(DataBaseContract.TABLE_GROUP.COLUMN_GROUP_NAME) +
                         " CatID = " + cv.get(DataBaseContract.TABLE_GROUP.COLUMN_CATEGORY_ID) +
@@ -129,14 +139,17 @@ public class DataBase {
         if (cursor != null && cursor.moveToFirst())
         {
             int id = cursor.getColumnIndex(DataBaseContract.TABLE_GROUP.COLUMN_GROUP_NAME);
-            do {
-                Log.d(TAG, "SPINNER Group = " + cursor.getString(id));
-            }while (cursor.moveToNext());
-            cursor.moveToFirst();
             do{
                 spGroupData.add(cursor.getString(id));
                 i++;
             }while (cursor.moveToNext());
+
+            //запись в лог @TODO удалить при пром эксплуатации Начало
+            cursor.moveToFirst();
+            do {
+                Log.d(TAG, "SPINNER Group = " + cursor.getString(id));
+            }while (cursor.moveToNext());
+            //конец удаляемого
         }
         cursor.close();
         dbh.close();

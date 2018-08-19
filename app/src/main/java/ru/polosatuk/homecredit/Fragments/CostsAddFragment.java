@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import org.threeten.bp.Instant;
 
+import ru.polosatuk.homecredit.BudgetDataContainer;
 import ru.polosatuk.homecredit.ChoseDate;
 import ru.polosatuk.homecredit.DataTable.DataBase;
 import ru.polosatuk.homecredit.DataTable.DataBaseContract;
@@ -37,9 +38,43 @@ public class CostsAddFragment extends Fragment implements View.OnClickListener {
     Spinner spCategory, spMoneyBox;
     Boolean oneTimeStart = true;
 
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG, "----onPause----");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "----onResume----");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG, "----onStop----");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d(TAG, "----onDetach----");
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(TAG, "----onStart----");
+    }
+
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "---OnCreateView---");
         View view = inflater.inflate(R.layout.fragment_costsadd, container, false);
 
         vCostsAdd = (EditText) view.findViewById(R.id.vCostsAdd);
@@ -61,7 +96,7 @@ public class CostsAddFragment extends Fragment implements View.OnClickListener {
             oneTimeStart = false;
         }
         //Выводим дату на экран @TODO написать парсер даты и вывод ее в формате dd.mm.yyyy hh:mm
-        //@TODO обновлять время и дату раз в минуту
+        //@TODO обновлять время и дату раз в минуту в отдельном потоке
         tvDate.setText(String.valueOf(Instant.now()));
 
         //создание спиннера
@@ -70,17 +105,17 @@ public class CostsAddFragment extends Fragment implements View.OnClickListener {
         spCategoryAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
         spCategory = (Spinner) view.findViewById(R.id.spCategory);
         spCategory.setAdapter(spCategoryAdapter);
-        spCategory.setSelection(0);
-        spCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
+//        spCategory.setSelection(0);
+//        spCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
 
         //спиннер кошельков @TODO вынести создание спиннеров в отдельный класс
         ArrayAdapter<String> spMoneyBoxAdapter = new ArrayAdapter<String>(view.getContext(), R.layout.support_simple_spinner_dropdown_item, new String[]{"Мой кошелек", "Карта"} );
@@ -88,63 +123,66 @@ public class CostsAddFragment extends Fragment implements View.OnClickListener {
 
         spMoneyBox = (Spinner) view.findViewById(R.id.spMoneyBox);
         spMoneyBox.setAdapter(spMoneyBoxAdapter);
-        spMoneyBox.setSelection(0);
-        spMoneyBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-   return view;
+//        spMoneyBox.setSelection(0);
+//        spMoneyBox.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//
+//
+//  });
+        return view;
     }
-
-    @Override
     public void onClick(View v) {
         db = new DataBase(getContext());
-        String dbName = DataBaseContract.TABLE_BUDGET.TABLE_NAME;
+        BudgetDataContainer container = new BudgetDataContainer();
+        container.setDbName(DataBaseContract.TABLE_BUDGET.TABLE_NAME);
         switch (v.getId()){
             case R.id.btnSaveOUT:
                 if (vCostsAdd.getText().toString().length() != 0){
+                    container.setDbComment(vCommentOUT.getText().toString());
+                    container.setDbCosts(vCostsAdd.getText().toString());
+                    container.setDbDate(tvDate.getText().toString());
+                    container.setDbCategory(spCategory.getSelectedItem().toString());
+                    container.setDbMoneyBox(spMoneyBox.getSelectedItem().toString());
+                    container.setDbBudgetType(getClass().getSimpleName());
+                    container.setDbMoneyType("руб"); //@TODO реализовать спиннер с выбором типов валюты
 
-                    dbComment = vCommentOUT.getText().toString();
-                    String dbCosts = vCostsAdd.getText().toString();
-                    String dbDate = tvDate.getText().toString();
-                    String dbCategory = spCategory.getSelectedItem().toString();
-                    String dbMoneyBox = spMoneyBox.getSelectedItem().toString();
-
-                    Log.d("DataBaseLog", "--------" + dbCosts + "---------");
-                    Log.d(TAG, "Date: " + dbDate);
+                    Log.d("DataBaseLog", "--------" + container.getDbCosts() + "---------");
+                    Log.d(TAG, "Date: " + container.getDbDate());
+                    Log.d(TAG, "--------" + String.valueOf(getClass().getSimpleName())+ "---------");
                     //Вызов метода записи значения в бд
 
-                    db.setDataBudget(dbName, dbCosts, dbComment, dbDate, dbCategory, dbMoneyBox);
-                    Toast.makeText(getContext(), "Трата добавлена " + dbCosts,Toast.LENGTH_SHORT).show();
+                    db.setDataBudget(container);
+                    //@TODO добавить в Strings
+                    Toast.makeText(getContext(), "Трата добавлена " + container.getDbCosts(),Toast.LENGTH_SHORT).show();
                     //очистка поля ввода трат
                     vCostsAdd.setText("");
 
                     //вывод значений базы в лог
-                    db.getDBInfo(dbName);
+                    db.getDBInfo(container.getDbName());
                 }else{
-                    //Если не введена сумма траты
+                    //Если не введена сумма траты@TODO добавить в Strings
                     Toast.makeText(getContext(), "Введите сумму траты.", Toast.LENGTH_LONG).show();
                     break;
                 }
                 break;
             case R.id.btnGetSalary:
 
-                dbComment = vCommentOUT.getText().toString();
+                container.setDbComment(vCommentOUT.getText().toString());
 
-                Log.d("DataBaseLog", "id = " + dbComment);
+                Log.d("DataBaseLog", "id = " + container.getDbComment());
 
-                vGetSalary.setText(db.getData(dbName, dbComment));
+                vGetSalary.setText(db.getData(container.getDbName(), container.getDbComment()));
                 //вывод значений базы в лог
-                db.getDBInfo(dbName);
+                db.getDBInfo(container.getDbName());
                 break;
             case R.id.btnNextPage:
                 Intent intent = new Intent(getContext(), ChoseDate.class);

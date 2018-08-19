@@ -3,6 +3,7 @@ package ru.polosatuk.homecredit;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter implements View.OnCli
     public Fragment getItem(int position) {
         return fragmentList.get(position);
     }
+
 
     @Override
     public void onClick(View v) {
