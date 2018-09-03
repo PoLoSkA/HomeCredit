@@ -10,8 +10,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
-import ru.polosatuk.homecredit.Fragments.CostsAddFragment;
-import ru.polosatuk.homecredit.Fragments.IncomeAddFragment;
+import ru.polosatuk.homecredit.fragments.CostsAddFragment;
+import ru.polosatuk.homecredit.fragments.IncomeAddFragment;
 
 
 public class EnterActivity extends AppCompatActivity implements View.OnClickListener {
@@ -36,15 +36,15 @@ public class EnterActivity extends AppCompatActivity implements View.OnClickList
         btnNextPage.setOnClickListener(this);
     }
 
-        @RequiresApi(api = Build.VERSION_CODES.N)
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onClick(View v) {
-                Intent intent = new Intent(this, ChoseDate.class);
-                startActivity(intent);
+        Intent intent = new Intent(this, ChoseDate.class);
+        startActivity(intent);
 
     }
 
-    private void setUpViewPager(ViewPager viewPager){
+    private void setUpViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new CostsAddFragment());
         adapter.addFragment(new IncomeAddFragment());

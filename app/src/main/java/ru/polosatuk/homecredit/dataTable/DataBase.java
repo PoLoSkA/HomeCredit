@@ -1,4 +1,4 @@
-package ru.polosatuk.homecredit.DataTable;
+package ru.polosatuk.homecredit.dataTable;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -144,7 +144,7 @@ public class DataBase {
                 i++;
             }while (cursor.moveToNext());
 
-            //запись в лог @TODO удалить при пром эксплуатации Начало
+            //запись в лог @TODO удалить после отладки Начало
             cursor.moveToFirst();
             do {
                 Log.d(TAG, "SPINNER Group = " + cursor.getString(id));
